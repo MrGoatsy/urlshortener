@@ -1,0 +1,37 @@
+*{
+    /*border: 1px solid;*/
+}
+body{
+    background: #F7F7F7;
+    margin: 0;
+    padding: 0;
+    font-family:"Trebuchet MS", Helvetica, sans-serif;
+    height: 100vh;
+}
+.main{
+    margin: 0 auto;
+    text-align: center;
+}
+.table{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    -webkit-transform: translate(-50%, -50%);
+    -ms-transform: translate(-50%, -50%);
+    -o-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+}
+header {
+    padding:5px;
+    border-collapse: collapse;
+    height: 100px;
+}
+section{
+    top: 50%;
+    left: 50%;
+}
+.textbox{
+    height: 50px;
+    width: 500px;
+    font-size: 30px;
+}
