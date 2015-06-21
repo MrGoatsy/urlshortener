@@ -22,11 +22,10 @@
 
   </head>
   <body>
-
     <div class="container-fluid">
 	<div class="row">
 		<div class="col-md-8">
-			<h3>Short your URL, no bullshit!</h3>
+			<h3><a href="index.php">Short your URL, no bullshit!</a></h3>
 		</div>
     </div>
   	<div class="row">
@@ -46,6 +45,24 @@
     			</p>
     		</div>
     		<div class="col-md-6">
+                <?php
+                /**
+                 * Go to link
+                 * */
+                    if(isset($_GET['s'])){
+                        $link = makeFriendly($_GET['s']);
+                        $query = $handler->query("SELECT * FROM url WHERE shortlink = '$link'");
+                        
+                        if($query->rowCount()){
+                            $fetch = $query->fetch(PDO::FETCH_ASSOC);
+                            
+                            header('Location:' . $fetch['longlink']);
+                        }
+                        else{
+                            echo '<h3 style="color: red; text-align: center;">' . $noResults . '</h3>';
+                        }
+                    }
+                ?>
                 <table class="table">
                     <form method="post">
                         <tr><td><label for="url"><h1>Type your URL here:</h1></label></td></tr>
@@ -53,45 +70,52 @@
                         <tr><td><input type="submit" value="Submit" class="textbox" /></td></tr>
                     </form>
                         <tr><td>
-                            <?php
-                                if($_SERVER['REQUEST_METHOD'] == 'POST'){
-                                    if(!empty($_POST['url'])){
-                                        $url = $_POST['url'];
+                <?php
+                /**
+                 * Create link
+                 * */
+                        if($_SERVER['REQUEST_METHOD'] == 'POST'){
+                            if(!empty($_POST['url'])){
+                                $url = $_POST['url'];
+                                
+                                if(urlCheck($url) == $url){
+                                    $short = randString(5);
+                                    
+                                    $query = $handler->prepare("INSERT INTO url (longlink, shortlink) VALUES (:longlink, :shortlink)");
+                                    
+                                    try{
+                                        $query->execute(array(
+                                            ':longlink'     => $url,
+                                            ':shortlink'    => $short
+                                        ));
                                         
-                                        if(urlCheck($url) == $url){
-                                            $short = randString(5);
-                                            
-                                            $query = $handler->prepare("INSERT INTO url (longlink, shortlink) VALUES (:longlink, :shortlink)");
-                                            
-                                            try{
-                                                $query->execute(array(
-                                                    ':longlink'     => $url,
-                                                    ':shortlink'    => $short
-                                                ));
-                                                
-                                                echo $linksuccess . "<br />
-                                                <input type='text' value='" . $website_url . $short . "' onclick='select()' class='textboxlink' />";
-                                            }
-                                            catch(PDOException $e){
-                                                echo $e->getMessage();
-                                            }
-                                        }
-                                        else{
-                                            echo $urlCheckFail;
-                                        }
+                                        echo $linksuccess . "<br />
+                                        <input type='text' value='" . $website_url . $short . "' onclick='select()' class='textboxlink' />";
                                     }
-                                    else{
-                                        echo $emptyUrl;
+                                    catch(PDOException $e){
+                                        echo $e->getMessage();
                                     }
                                 }
-                            ?>
+                                else{
+                                    echo $urlCheckFail;
+                                }
+                            }
+                            else{
+                                echo $emptyUrl;
+                            }
+                        }
+                ?>
                         </td></tr>
                 </table>
     		</div>
     		<div class="col-md-3">
-    			<p>
-    				Lorem ipsum dolor sit amet, <strong>consectetur adipiscing elit</strong>. Aliquam eget sapien sapien. Curabitur in metus urna. In hac habitasse platea dictumst. Phasellus eu sem sapien, sed vestibulum velit. Nam purus nibh, lacinia non faucibus et, pharetra in dolor. Sed iaculis posuere diam ut cursus. <em>Morbi commodo sodales nisi id sodales. Proin consectetur, nisi id commodo imperdiet, metus nunc consequat lectus, id bibendum diam velit et dui.</em> Proin massa magna, vulputate nec bibendum nec, posuere nec lacus. <small>Aliquam mi erat, aliquam vel luctus eu, pharetra quis elit. Nulla euismod ultrices massa, et feugiat ipsum consequat eu.</small>
-    			</p>
+    			<?php
+                    $query = $handler->query("SELECT * FROM url ORDER BY id DESC LIMIT 10");
+                    
+                    while($fetch = $query->fetch(PDO::FETCH_ASSOC)){
+                        echo'<a href="' . $website_url . '?s=' . $fetch['shortlink'] . '">' . $website_url . '?s=' . $fetch['shortlink'] . '</a><br />';
+                    }
+                ?>
     		</div>
         </div>
 	</div>
