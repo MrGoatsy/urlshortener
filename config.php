@@ -20,4 +20,6 @@ try{
     //echo $e->getMessage();
     die('Something went wrong, please try again.');
 }
+
+$website_url = 'http://localhost/';
 ?>

@@ -1,7 +1,7 @@
 CREATE TABLE url(
     `id` int(10) NOT NULL auto_increment,
-    `url` varchar(255) NOT NULL,
-    `short` varchar(255) NOt NULL,
+    `longlink` varchar(255) NOT NULL,
+    `shortlink` varchar(255) NOt NULL,
     PRIMARY KEY (`id`),
-    UNIQUE KEY (`short`)
+    UNIQUE KEY (`shortlink`)
 ) ENGINE=InnoDB;
