@@ -25,7 +25,7 @@
     <div class="container-fluid">
 	<div class="row">
 		<div class="col-md-8">
-			<h3 class="title"><a href="<?php echo $website_url; ?>">Short your URL, no bullshit!</a></h3>
+			<h1 class="title"><a href="<?php echo $website_url; ?>">Short your URL, no bullshit!</a></h1>
 		</div>
     </div>
   	<div class="row">
@@ -41,6 +41,20 @@
         <div class="middle">
     		<div class="col-md-3">
     			<h3>Some stuff</h3>
+                <div class="col-md-8">
+                    <form method="post">
+                        <div class="input-group margin-bottom-sm" style="margin-bottom: 5px;">
+                          <span class="input-group-addon"><i class="fa fa-user fa-fw"></i></span>
+                          <input class="form-control" type="text" placeholder="Username" />
+                        </div>
+                        <div class="input-group" style="margin-bottom: 5px;">
+                          <span class="input-group-addon"><i class="fa fa-key fa-fw"></i></span>
+                          <input class="form-control" type="password" placeholder="Password" />
+                        </div>
+                        <a class="btn btn-info" href="#">Register</a>
+                        <input class="btn btn-success" type="submit" value="Login" style="float: right;" />
+                      </form>
+                </div>
     		</div>
     		<div class="col-md-6">
                 <?php
@@ -66,7 +80,7 @@
                     <form method="post">
                         <tr><td><label for="url"><h3>Type your URL here:</h3></label></td></tr>
                         <tr><td><input type="url" name="url" class="textbox" required /></td></tr>
-                        <tr><td><input type="submit" value="Submit" class="textbox" /></td></tr>
+                        <tr><td><input type="submit" value="Submit" name="urlform" class="textbox" /></td></tr>
                     </form>
                         <tr><td>
                 <?php
@@ -74,33 +88,44 @@
                  * Create link
                  * */
                         if($_SERVER['REQUEST_METHOD'] == 'POST'){
-                            if(!empty($_POST['url'])){
-                                $url = $_POST['url'];
-                                
-                                if(urlCheck($url) == $url){
-                                    $short = randString(10);
+                            if(isset($_POST['urlform'])){
+                                if(!empty($_POST['url'])){
+                                    $url = $_POST['url'];
                                     
-                                    $query = $handler->prepare("INSERT INTO url (longlink, shortlink) VALUES (:longlink, :shortlink)");
-                                    
-                                    try{
-                                        $query->execute(array(
-                                            ':longlink'     => $url,
-                                            ':shortlink'    => $short
-                                        ));
+                                    if(urlCheck($url) == $url){
+                                        $query = $handler->query("SELECT * FROM url WHERE longlink = '$url'");
+                                        $fetch = $query->fetch(PDO::FETCH_ASSOC);
                                         
-                                        echo $linksuccess . "<br />
-                                        <input type='text' value='" . $website_url . $short . "' onclick='select()' class='textboxlink' />";
+                                        if(!$query->rowCount()){
+                                            $short = randString(10);
+                                            
+                                            $query = $handler->prepare("INSERT INTO url (longlink, shortlink) VALUES (:longlink, :shortlink)");
+                                            
+                                            try{
+                                                $query->execute(array(
+                                                    ':longlink'     => $url,
+                                                    ':shortlink'    => $short
+                                                ));
+                                                
+                                                echo $linksuccess . "<br />
+                                                <input type='text' value='" . $website_url . $short . "' onclick='select()' class='textboxlink' />";
+                                            }
+                                            catch(PDOException $e){
+                                                echo $e->getMessage();
+                                            }
+                                        }
+                                        else{
+                                            echo $linkexisted . "<br />
+                                            <input type='text' value='" . $website_url . $fetch['shortlink'] . "' onclick='select()' class='textboxlink' />";
+                                        }
                                     }
-                                    catch(PDOException $e){
-                                        echo $e->getMessage();
+                                    else{
+                                        echo $urlCheckFail;
                                     }
                                 }
                                 else{
-                                    echo $urlCheckFail;
+                                    echo $emptyUrl;
                                 }
-                            }
-                            else{
-                                echo $emptyUrl;
                             }
                         }
                 ?>
@@ -116,7 +141,7 @@
                         echo'<table>';
                     while($fetch = $query->fetch(PDO::FETCH_ASSOC)){
                         echo'<tr><td class="numberwidth">' . $i . '.</td>';
-                        echo'<td><a href="' . $website_url . $fetch['shortlink'] . '">' . $website_url . $fetch['shortlink'] . '</a></td></tr>';
+                        echo'<td><a href="' . $website_url . $fetch['shortlink'] . '" target="_blank">' . $website_url . $fetch['shortlink'] . '</a></td></tr>';
                         
                         $i++;
                     }
@@ -127,7 +152,7 @@
 	</div>
 	<div class="row">
 		<div class="col-md-12">
-            Footer
+            &copy;2015 made by <a href="http://www.heekdevelopment.com/">Heek Development</a>
 		</div>
 	</div>
 </div>
